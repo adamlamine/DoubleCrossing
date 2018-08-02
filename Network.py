@@ -59,6 +59,21 @@ class ThreadedClient(threading.Thread):
             try:
                 data = self.connection.recv(1024)
                 msg = data.decode('latin-1')
+
+                if "KEYDOWN: " in msg:
+                    cmd = ""
+                    if "LEFT" in msg:
+                        serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.LEFT ))
+                    if "RIGHT" in msg:
+                        serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
+                    if "UP" in msg:
+                        serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
+                    if "DOWN" in msg:
+                        serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
+                    if "SPACE" in msg:
+                        serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
+
+
             except:
                  pass
 
@@ -102,12 +117,13 @@ class KEYUP(Enum):
 
 class PLAYERCOMMAND():
 
-    def __init__(self, ID, KEYEVENTS):
+    def __init__(self, ID, KEYEVENT):
         self.ID = ID
-        self.KEYEVENTS = KEYEVENTS
+        self.KEYEVENT = KEYEVENT
 
     ID = None
-    KEYEVENTS = None
+    KEYEVENT = None
+
 
 ##############################################################
 ##################  KLASSENLOSER CODE  #######################
