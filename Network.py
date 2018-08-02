@@ -30,7 +30,7 @@ class ThreadedServer(threading.Thread):
             connection, address = self.s.accept()
 
             self.clientList.append(ThreadedClient(address, connection))
-            self.clientList[len(self.clientList-1)].start()
+            self.clientList[len(self.clientList)-1].start()
 
 class ThreadedClient(threading.Thread):
 
