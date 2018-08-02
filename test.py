@@ -16,6 +16,7 @@ class Player():
         self.zahl = zahl
         self.game = game
 
+
 game = Game(133)
 
 print(game.zahl)

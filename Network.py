@@ -60,19 +60,28 @@ class ThreadedClient(threading.Thread):
                 data = self.connection.recv(1024)
                 msg = data.decode('latin-1')
 
-                if "KEYDOWN: " in msg:
-                    cmd = ""
-                    if "LEFT" in msg:
-                        serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.LEFT ))
-                    if "RIGHT" in msg:
-                        serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
-                    if "UP" in msg:
-                        serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
-                    if "DOWN" in msg:
-                        serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
-                    if "SPACE" in msg:
-                        serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
+                if "KEYDOWN: LEFT" in msg:
+                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.LEFT ))
+                if "KEYDOWN: RIGHT" in msg:
+                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
+                if "KEYDOWN: UP" in msg:
+                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
+                if "KEYDOWN: DOWN" in msg:
+                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
+                if "KEYDOWN: SPACE" in msg:
+                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
 
+
+                if "KEYUP: LEFT" in msg:
+                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.LEFT ))
+                if "KEYUP: RIGHT" in msg:
+                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
+                if "KEYUP: UP" in msg:
+                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
+                if "KEYUP: DOWN" in msg:
+                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
+                if "SPACE" in msg:
+                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
 
             except:
                  pass
@@ -101,19 +110,19 @@ class ThreadedClient(threading.Thread):
 
 class KEYDOWN(Enum):
 
-    LEFT = None
-    RIGHT = None
-    UP = None
-    DOWN = None
-    SPACE = None
+    LEFT = "LEFT"
+    RIGHT = "RIGHT"
+    UP = "UP"
+    DOWN = "DOWN"
+    SPACE = "SPACE"
 
 class KEYUP(Enum):
 
-    LEFT = None
-    RIGHT = None
-    UP = None
-    DOWN = None
-    SPACE = None
+    LEFT = "LEFT"
+    RIGHT = "RIGHT"
+    UP = "UP"
+    DOWN = "DOWN"
+    SPACE = "SPACE"
 
 class PLAYERCOMMAND():
 
