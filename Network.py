@@ -55,5 +55,5 @@ class ThreadedClient(threading.Thread):
 ##################  KLASSENLOSER CODE  #######################
 ##############################################################
 
-serverThread = ThreadedServer
+serverThread = ThreadedServer()
 serverThread.start()
