@@ -1,5 +1,8 @@
 import threading
 import socket
+import time
+from enum import Enum
+import uuid
 
 class ThreadedServer(threading.Thread):
 
@@ -11,7 +14,6 @@ class ThreadedServer(threading.Thread):
     s.listen(5)
 
     clientList = []
-
     cmdQueue = []
 
     def __init__(self):
@@ -21,16 +23,18 @@ class ThreadedServer(threading.Thread):
         self.serverLoop()
 
     def removeClient(self, client):
-        self.clientList.remove(client)
-
+        print(self.clientList[0])
+        print(client)
 
     def serverLoop(self):
 
         while True:
             connection, address = self.s.accept()
 
-            self.clientList.append(ThreadedClient(address, connection))
+            self.clientList.append(ThreadedClient(address, connection, uuid.uuid4())) #initialisiert den ClientThread mit einer unique ID
             self.clientList[len(self.clientList)-1].start()
+
+            print("Verbindung mit " + str(address) + " hergestellt.")
 
 class ThreadedClient(threading.Thread):
 
@@ -38,22 +42,78 @@ class ThreadedClient(threading.Thread):
     address = None
     connection = None
 
-    def __init__(self, address, connection):
+    def __init__(self, address, connection, ID):
         self.address = address
         self.connection = connection
+        self.ID = ID
         threading.Thread.__init__(self)
 
     def run(self):
-        self.inputLoop()
+        inputThread = threading.Thread(target=self.inputLoop)
+        stillaliveThread = threading.Thread(target=self.stillaliveLoop, args=(self, ))
+        inputThread.start()
+        stillaliveThread.start()
 
     def inputLoop(self):
         while True:
-            self.connection.recv(1024)
+            try:
+                data = self.connection.recv(1024)
+                msg = data.decode('latin-1')
+            except:
+                 pass
 
+    def stillaliveLoop(self, client):
+        while True:
+            time.sleep(1)
+            print(len(serverThread.clientList))
+            try:
+                data = self.connection.recv(1024, socket.MSG_PEEK)
+
+                if not data:
+                    print("Verbindung mit " + str(self.address) + " getrennt.")
+                    self.connection.close()
+                    serverThread.clientList.remove(client)
+                    break;
+
+            except:
+                print("Verbindung mit " + str(self.address) + " getrennt.")
+                self.connection.close()
+                serverThread.removeClient(client)
+                break;
+
+    def addToQueue(self, cmd):
+        serverThread.cmdQueue.append(cmd)
+
+class KEYDOWN(Enum):
+
+    LEFT = None
+    RIGHT = None
+    UP = None
+    DOWN = None
+    SPACE = None
+
+class KEYUP(Enum):
+
+    LEFT = None
+    RIGHT = None
+    UP = None
+    DOWN = None
+    SPACE = None
+
+class PLAYERCOMMAND():
+
+    def __init__(self, ID, KEYEVENTS):
+        self.ID = ID
+        self.KEYEVENTS = KEYEVENTS
+
+    ID = None
+    KEYEVENTS = None
 
 ##############################################################
 ##################  KLASSENLOSER CODE  #######################
 ##############################################################
 
+
 serverThread = ThreadedServer()
 serverThread.start()
+
