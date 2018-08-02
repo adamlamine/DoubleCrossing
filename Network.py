@@ -1,5 +1,8 @@
 import threading
 import socket
+import pygame
+from pygame.locals import *
+
 
 class ThreadedServer(threading.Thread):
 
@@ -50,6 +53,66 @@ class ThreadedClient(threading.Thread):
         while True:
             self.connection.recv(1024)
 
+pygame.init()
+
+
+class Player:
+    recX = None
+    recY = None
+    #speed = None
+    recWidth = None
+    recHeight = None
+    blue = (0, 0, 255)
+
+
+    def __init__(self, recX, recY):
+        self.recX = recX
+        self.recY = recY
+        self.recWidth = 85
+        self.recHeight = 85
+        game = Game()
+        display = game.get_gameDisplay()
+        #self.speed = speed
+        #pygame.draw.rect(Game.gameDisplay, self.blue, (recX, recY, self.recWidth, self.recHeight))
+
+    def draw(self):
+        pygame.draw.rect(Game.gameDisplay, self.blue, (self.recX, self.recY, self.recWidth, self.recHeight))
+
+    # def run(self):
+    #
+    #
+    # def hit(self):
+
+class Game:
+    displayWidth = 1200
+    displayHeight = 600
+
+    black = (0, 0, 0)
+    white = (255, 255, 255)
+
+    gameDisplay = pygame.display.set_mode((displayWidth, displayHeight))
+    pygame.draw.rect(gameDisplay, black, (200, 150, 100, 50))
+    gameDisplay.fill(white)
+    pygame.display.set_caption('Double Crossing')
+
+    player = Player(200, 200)
+    player.draw();
+
+    def get_gameDisplay(self):
+        return self.gameDisplay
+
+    def gameLoop():
+        while True:
+            for event in pygame.event.get():
+
+                if event.type == QUIT:
+                    pygame.quit()
+                    quit()
+            pygame.display.update()
+
+
+    gameLoop()
+
 
 ##############################################################
 ##################  KLASSENLOSER CODE  #######################
@@ -57,3 +120,7 @@ class ThreadedClient(threading.Thread):
 
 serverThread = ThreadedServer()
 serverThread.start()
+
+
+
+
