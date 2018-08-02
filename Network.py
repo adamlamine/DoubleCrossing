@@ -1,14 +1,10 @@
 import threading
 import socket
-<<<<<<< HEAD
 import pygame
 from pygame.locals import *
-
-=======
 import time
 from enum import Enum
 import uuid
->>>>>>> b51c0938f6048bd704fe9bfb70ff8093da28eeaf
 
 class ThreadedServer(threading.Thread):
 
@@ -107,8 +103,32 @@ class ThreadedClient(threading.Thread):
         serverThread.cmdQueue.append(cmd)
 
 class KEYDOWN(Enum):
+    LEFT = None
+    RIGHT = None
+    UP = None
+    DOWN = None
+    SPACE = None
 
-<<<<<<< HEAD
+
+class KEYUP(Enum):
+    LEFT = None
+    RIGHT = None
+    UP = None
+    DOWN = None
+    SPACE = None
+
+
+class PLAYERCOMMAND():
+
+    def __init__(self, ID, KEYEVENT):
+        self.ID = ID
+        self.KEYEVENT = KEYEVENT
+
+    ID = None
+    KEYEVENT = None
+    KEYEVENTS = None
+
+    
 pygame.init()
 
 
@@ -169,35 +189,7 @@ class Game:
 
     gameLoop()
 
-=======
-    LEFT = None
-    RIGHT = None
-    UP = None
-    DOWN = None
-    SPACE = None
 
-class KEYUP(Enum):
-
-    LEFT = None
-    RIGHT = None
-    UP = None
-    DOWN = None
-    SPACE = None
-
-class PLAYERCOMMAND():
-
-    def __init__(self, ID, KEYEVENT):
-        self.ID = ID
-        self.KEYEVENT = KEYEVENT
-
-    ID = None
-<<<<<<< HEAD
-    KEYEVENT = None
-
-=======
-    KEYEVENTS = None
->>>>>>> b51c0938f6048bd704fe9bfb70ff8093da28eeaf
->>>>>>> 8c3f165d5e204f7523947c09658c28fb99dae92e
 
 ##############################################################
 ##################  KLASSENLOSER CODE  #######################
@@ -207,9 +199,3 @@ class PLAYERCOMMAND():
 serverThread = ThreadedServer()
 serverThread.start()
 
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> b51c0938f6048bd704fe9bfb70ff8093da28eeaf
