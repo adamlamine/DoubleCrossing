@@ -14,8 +14,13 @@
       <file leaf-file-name="Network.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Network.py">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="331">
               <caret line="125" lean-forward="true" selection-start-line="125" selection-end-line="125" />
+=======
+            <state relative-caret-position="374">
+              <caret line="106" column="34" lean-forward="true" selection-start-line="106" selection-start-column="34" selection-end-line="106" selection-end-column="34" />
+>>>>>>> b51c0938f6048bd704fe9bfb70ff8093da28eeaf
               <folding>
                 <element signature="e#0#16#0" expanded="true" />
               </folding>
@@ -24,19 +29,34 @@
         </entry>
       </file>
       <file leaf-file-name="threading.py" pinned="false" current-in-tab="false">
+<<<<<<< HEAD
         <entry file="file:///Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/threading.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1749">
               <caret line="853" column="8" selection-start-line="853" selection-start-column="8" selection-end-line="853" selection-end-column="8" />
+=======
+        <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python37/Lib/threading.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="202">
+              <caret line="864" selection-start-line="864" selection-end-line="864" />
+>>>>>>> b51c0938f6048bd704fe9bfb70ff8093da28eeaf
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
       <file leaf-file-name="threading.pyi" pinned="false" current-in-tab="false">
         <entry file="file://$APPLICATION_HOME_DIR$/helpers/typeshed/stdlib/2and3/threading.pyi">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="915">
               <caret line="66" column="8" selection-start-line="66" selection-start-column="8" selection-end-line="66" selection-end-column="8" />
+=======
+      <file leaf-file-name="enum.py" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python37/Lib/enum.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="194">
+              <caret line="223" selection-start-line="223" selection-end-line="223" />
+>>>>>>> b51c0938f6048bd704fe9bfb70ff8093da28eeaf
             </state>
           </provider>
         </entry>
@@ -49,6 +69,11 @@
         <option value="Python Script" />
       </list>
     </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>print</find>
+    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -91,7 +116,10 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
+<<<<<<< HEAD
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+=======
+>>>>>>> b51c0938f6048bd704fe9bfb70ff8093da28eeaf
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
@@ -148,15 +176,22 @@
     <frame x="0" y="23" width="1440" height="794" extended-state="6" />
     <editor active="true" />
     <layout>
+<<<<<<< HEAD
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15625" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32916668" />
+=======
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15677084" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.32946146" />
+>>>>>>> b51c0938f6048bd704fe9bfb70ff8093da28eeaf
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="7" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39915523" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -199,6 +234,7 @@
     <entry file="file://$PROJECT_DIR$/Network.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
+<<<<<<< HEAD
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/typeshed/stdlib/2and3/threading.pyi">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="915">
@@ -210,13 +246,31 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1749">
           <caret line="853" column="8" selection-start-line="853" selection-start-column="8" selection-end-line="853" selection-end-column="8" />
+=======
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python37/Lib/enum.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="194">
+          <caret line="223" selection-start-line="223" selection-end-line="223" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python37/Lib/threading.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="202">
+          <caret line="864" selection-start-line="864" selection-end-line="864" />
+>>>>>>> b51c0938f6048bd704fe9bfb70ff8093da28eeaf
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Network.py">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="331">
           <caret line="125" lean-forward="true" selection-start-line="125" selection-end-line="125" />
+=======
+        <state relative-caret-position="374">
+          <caret line="106" column="34" lean-forward="true" selection-start-line="106" selection-start-column="34" selection-end-line="106" selection-end-column="34" />
+>>>>>>> b51c0938f6048bd704fe9bfb70ff8093da28eeaf
           <folding>
             <element signature="e#0#16#0" expanded="true" />
           </folding>
