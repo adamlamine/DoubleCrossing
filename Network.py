@@ -33,7 +33,6 @@ class ThreadedServer(threading.Thread):
         self.serverLoop()
 
     def removeClient(self, client):
-        print(self.clientList[0])
         print(client)
 
     def serverLoop(self):
@@ -42,7 +41,7 @@ class ThreadedServer(threading.Thread):
             connection, address = self.s.accept()
             self.handshake(connection)
 
-            self.clientList.append(ThreadedClient(address, connection, uuid.uuid4()))  #initialisiert den ClientThread mit einer unique ID
+            self.clientList.append(ThreadedClient(address, connection, str(uuid.uuid4())))  #initialisiert den ClientThread mit einer unique ID
             self.clientList[len(self.clientList)-1].start()
 
             print("Verbindung mit " + str(address) + " hergestellt.")
@@ -84,7 +83,7 @@ class ThreadedClient(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        inputThread = threading.Thread(target=self.inputLoop)
+        inputThread = threading.Thread(target=self.inputLoop, args=(self, ))
         stillaliveThread = threading.Thread(target=self.stillaliveLoop, args=(self, ))
         inputThread.start()
         stillaliveThread.start()
@@ -103,38 +102,57 @@ class ThreadedClient(threading.Thread):
 
         return payload
 
-    def inputLoop(self):
+    x = 0
+
+    def inputLoop(self, client):
         while True:
             try:
-                frame = self.connection.recv(2048)
+                frame = self.connection.recv(100)
                 msg = self.decodeFrame(frame).decode()
-                print(msg)
+                #print(msg)
+                cmd = None
 
-                if "KEYDOWN: LEFT" in msg:
-                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.LEFT ))
-                if "KEYDOWN: RIGHT" in msg:
-                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
-                if "KEYDOWN: UP" in msg:
-                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
-                if "KEYDOWN: DOWN" in msg:
-                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
-                if "KEYDOWN: SPACE" in msg:
-                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
+                if "PLAYERCOMMAND: " in msg:
+
+                    if "LEFT_DOWN" in msg:
+                        cmd = PLAYERCOMMAND( self.ID,KEYDOWN.LEFT )
+                    if "RIGHT_DOWN" in msg:
+                        cmd = PLAYERCOMMAND( self.ID,KEYDOWN.RIGHT )
+                    if "UP_DOWN" in msg:
+                        cmd = PLAYERCOMMAND( self.ID,KEYDOWN.UP )
+                    if "DOWN_DOWN" in msg:
+                        cmd = PLAYERCOMMAND( self.ID,KEYDOWN.DOWN )
+                    if "SPACE_DOWN" in msg:
+                        cmd = PLAYERCOMMAND( self.ID,KEYDOWN.SPACE )
 
 
-                if "KEYUP: LEFT" in msg:
-                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.LEFT ))
-                if "KEYUP: RIGHT" in msg:
-                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
-                if "KEYUP: UP" in msg:
-                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
-                if "KEYUP: DOWN" in msg:
-                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
-                if "KEYUP: SPACE" in msg:
-                    serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
+                    if "LEFT_UP" in msg:
+                        cmd = PLAYERCOMMAND( self.ID,KEYUP.LEFT )
+                    if "RIGHT_UP" in msg:
+                        cmd = PLAYERCOMMAND( self.ID,KEYUP.RIGHT )
+                    if "UP_UP" in msg:
+                        cmd = PLAYERCOMMAND( self.ID,KEYUP.UP )
+                    if "DOWN_UP" in msg:
+                        cmd = PLAYERCOMMAND( self.ID,KEYUP.DOWN )
+                    if "SPACE_UP" in msg:
+                        cmd = PLAYERCOMMAND( self.ID,KEYUP.SPACE )
 
-            except:
-                 pass
+                    if cmd is not None:
+                        serverThread.cmdQueue.append(cmd)
+
+                        if cmd.KEYEVENT in KEYDOWN:
+                            netModule.onKeyDown(cmd)
+                        if cmd.KEYEVENT in KEYUP:
+                            netModule.onKeyUp(cmd)
+
+            except Exception as e:
+                 print(e)
+                 serverThread.removeClient(client)
+                 self.connection.close()
+                 time.sleep(1)
+                 print( "Anzahl der verbundenen Clients: " + str( netModule.getPlayerCount() ) )
+                 break
+
 
     def stillaliveLoop(self, client):
         while True:
@@ -159,6 +177,7 @@ class ThreadedClient(threading.Thread):
         serverThread.cmdQueue.append(cmd)
 
 class KEYDOWN(Enum):
+    type = "KEYDOWN"
 
     LEFT = "LEFT_DOWN"
     RIGHT = "RIGHT_DOWN"
@@ -167,6 +186,7 @@ class KEYDOWN(Enum):
     SPACE = "SPACE_DOWN"
 
 class KEYUP(Enum):
+    type = "KEYUP"
 
     LEFT = "LEFT_UP"
     RIGHT = "RIGHT_UP"
@@ -301,6 +321,30 @@ class Game:
             self.clock.tick(self.fps)
 
 
+class NetModule():
+
+    def getCmdQueue(self):
+        return serverThread.getCmdQueue()
+
+    def getPlayerCount(self):
+        return len(serverThread.clientList)
+
+    def onKeyDown(self, PLAYERCOMMAND):
+        print(PLAYERCOMMAND.ID + " hat eine Taste gedrückt: " + str(PLAYERCOMMAND.KEYEVENT))
+        #
+        #
+        #
+        pass
+
+    def onKeyUp(self, PLAYERCOMMAND):
+        print(PLAYERCOMMAND.ID + " hat eine Taste losgelassen: " + str(PLAYERCOMMAND.KEYEVENT))
+        #
+        #
+        #
+        pass
+
+
+
 
 
 ##############################################################
@@ -310,6 +354,8 @@ class Game:
 
 serverThread = ThreadedServer()
 serverThread.start()
+
+netModule = NetModule()
 
 
 ##############################################################
