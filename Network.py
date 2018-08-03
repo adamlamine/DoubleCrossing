@@ -241,65 +241,65 @@ class Player:
                     #TODO up key
                     pass
 
-#
-# class Game:
-#     displayWidth = None
-#     halfWidth = None
-#     displayHeight = None
-#     halfHeight = None
-#     fps = None
-#
-#     black = None
-#     white = None
-#
-#     gameDisplay = None
-#     clock = None
-#
-#     player = None
-#
-#
-#     def __init__(self):
-#         self.displayWidth = 1200
-#         self.halfWidth = self.displayWidth / 2
-#         self.displayHeight = 600
-#         self.halfHeight = self.displayHeight / 2
-#         self.fps = 200
-#
-#         self.black = (0, 0, 0)
-#         self.white = (255, 255, 255)
-#
-#         self.gameDisplay = pygame.display.set_mode((self.displayWidth, self.displayHeight))
-#         pygame.draw.rect(self.gameDisplay, self.black, (200, 150, 100, 50))
-#         self.gameDisplay.fill(self.white)
-#         pygame.display.set_caption('Double Crossing')
-#         self.clock = pygame.time.Clock()
-#
-#         self.player = Player(self.halfWidth, self.halfHeight, self)
-#         self.player.draw()
-#
-#     def set_clock(self):
-#         global clock
-#
-#     def set_fps(self):
-#         global fps
-#
-#     def set_gameDisplay(self, gameDisplay):
-#         self.gameDisplay = gameDisplay
-#
-#     def get_gameDisplay(self):
-#         return self.gameDisplay
-#
-#     def gameLoop(self):
-#         while True:
-#             for event in pygame.event.get():
-#
-#                 if event.type == pygame.QUIT:
-#                     pygame.quit()
-#                     quit()
-#             pygame.display.update()
-#
-#             self.clock.tick(self.fps)
-#
+
+class Game:
+    displayWidth = None
+    halfWidth = None
+    displayHeight = None
+    halfHeight = None
+    fps = None
+
+    black = None
+    white = None
+
+    gameDisplay = None
+    clock = None
+
+    player = None
+
+
+    def __init__(self):
+        self.displayWidth = 1200
+        self.halfWidth = self.displayWidth / 2
+        self.displayHeight = 600
+        self.halfHeight = self.displayHeight / 2
+        self.fps = 200
+
+        self.black = (0, 0, 0)
+        self.white = (255, 255, 255)
+
+        self.gameDisplay = pygame.display.set_mode((self.displayWidth, self.displayHeight))
+        pygame.draw.rect(self.gameDisplay, self.black, (200, 150, 100, 50))
+        self.gameDisplay.fill(self.white)
+        pygame.display.set_caption('Double Crossing')
+        self.clock = pygame.time.Clock()
+
+        self.player = Player(self.halfWidth, self.halfHeight, self)
+        self.player.draw()
+
+    def set_clock(self):
+        global clock
+
+    def set_fps(self):
+        global fps
+
+    def set_gameDisplay(self, gameDisplay):
+        self.gameDisplay = gameDisplay
+
+    def get_gameDisplay(self):
+        return self.gameDisplay
+
+    def gameLoop(self):
+        while True:
+            for event in pygame.event.get():
+
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+            pygame.display.update()
+
+            self.clock.tick(self.fps)
+
 
 
 
@@ -316,5 +316,5 @@ serverThread.start()
 ################  KLASSENLOSER CODE CARO  ####################
 ##############################################################
 
-# game = Game()
-# game.gameLoop()
+game = Game()
+game.gameLoop()
