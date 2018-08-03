@@ -42,7 +42,7 @@ class ThreadedServer(threading.Thread):
             connection, address = self.s.accept()
             self.handshake(connection)
 
-            self.clientList.append(ThreadedClient(address, connection, uuid.uuid4())) #initialisiert den ClientThread mit einer unique ID
+            self.clientList.append(ThreadedClient(address, connection, uuid.uuid4()))  #initialisiert den ClientThread mit einer unique ID
             self.clientList[len(self.clientList)-1].start()
 
             print("Verbindung mit " + str(address) + " hergestellt.")
@@ -62,7 +62,7 @@ class ThreadedServer(threading.Thread):
 
         processedKey = b64encode(sha1( (key + GUID).encode('utf-8') ).digest())
 
-        response =  "HTTP/1.1 101 Switching Protocols\r\n"
+        response = "HTTP/1.1 101 Switching Protocols\r\n"
         response += "Upgrade: websocket\r\n"
         response += "Connection: Upgrade\r\n"
         response += "Sec-WebSocket-Accept: " + processedKey.decode("utf-8") + "\r\n\r\n"
@@ -130,7 +130,7 @@ class ThreadedClient(threading.Thread):
                     serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
                 if "KEYUP: DOWN" in msg:
                     serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
-                if "SPACE" in msg:
+                if "KEYUP: SPACE" in msg:
                     serverThread.cmdQueue.append(PLAYERCOMMAND(self.ID,KEYDOWN.RIGHT ))
 
             except:
