@@ -10,7 +10,7 @@ from hashlib import sha1
 
 class ThreadedServer(threading.Thread):
 
-    IP = "127.0.0.1"
+    IP = "192.168.0.24"
     port = 5555
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -71,11 +71,10 @@ class ThreadedServer(threading.Thread):
 
     def sendToAll(self, msg):
         for i in self.clientList:
-            i.sendMessage(msg)
-
-
-
-
+            try:
+                i.sendMsg(msg.encode('utf-8'))
+            except:
+                pass
 
 
 
@@ -104,6 +103,7 @@ class ThreadedClient(threading.Thread):
 
     def decodeFrame(self, frame):
         #############TODO: Verstehen
+        #############https://superuser.blog/websocket-server-python/
 
         opcode_and_fin = frame[0]
 
@@ -115,6 +115,16 @@ class ThreadedClient(threading.Thread):
         payload = bytearray([encrypted_payload[i] ^ mask[i % 4] for i in range(payload_len)])
 
         return payload
+
+    def sendMsg(self, payload):
+        # setting fin to 1 and opcpde to 0x1
+        frame = [129]
+        # adding len. no masking hence not doing +128
+        frame += [len(payload)]
+        # adding payload
+        frame_to_send = bytearray(frame) + payload
+
+        self.connection.send(frame_to_send)
 
     def inputLoop(self, client):
         while self.alive:
@@ -157,9 +167,9 @@ class ThreadedClient(threading.Thread):
                         #TODO: Framing
 
                         if cmd.KEYEVENT in KEYPRESS:
-                            netModule.onKeyDown(cmd)
+                            netModule.onKeyPress(cmd)
                         if cmd.KEYEVENT in KEYRELEASE:
-                            netModule.onKeyUp(cmd)
+                            netModule.onKeyRelease(cmd)
 
             except UnicodeDecodeError as e:
                 break
@@ -167,8 +177,8 @@ class ThreadedClient(threading.Thread):
     def addToQueue(self, cmd):
         serverThread.cmdQueue.append(cmd)
 
-    def sendMsg(self, msg):
-        self.connection.send(bytes(msg, 'utf-8'))
+    # def sendMsg(self, msg):
+    #     self.connection.send(bytes(msg, 'utf-8'))
 
     def countDownTimeout(self, client):
         while self.alive:
@@ -228,14 +238,16 @@ class NetModule():
     def sendGamestate(self, Gamestate):
         serverThread.sendToAll(Gamestate)
 
-    def onKeyDown(self, PLAYERCOMMAND):
+    def onKeyPress(self, PLAYERCOMMAND):
         print(PLAYERCOMMAND.ID + " hat eine Taste gedrückt: " + str(PLAYERCOMMAND.KEYEVENT))
         #
-        player.jumping = True
+        if PLAYERCOMMAND.KEYEVENT == KEYPRESS.SPACE:
+            player.jumping = True
+
         #
         pass
 
-    def onKeyUp(self, PLAYERCOMMAND):
+    def onKeyRelease(self, PLAYERCOMMAND):
         print(PLAYERCOMMAND.ID + " hat eine Taste losgelassen: " + str(PLAYERCOMMAND.KEYEVENT))
         #
         #
@@ -430,10 +442,12 @@ pygame.display.update()
 
 def gameLoop():
     while True:
+        netModule.sendGamestate( str(player.rect.left) + "," + str(player.rect.top) )
         player.handle_keys()
         player.jump(0, -1)
         pygame.display.update()
         clock.tick(fps)
+
 
         for e in pygame.event.get():
             if e.type == QUIT:

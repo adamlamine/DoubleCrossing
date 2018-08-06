@@ -17,7 +17,6 @@ var init = function(){
 init();
 
 var resize = function(){
-	console.log("resize");
 	canvas.style.position = "absolute";
 	canvas.style.height = window.innerHeight + "px";
 	canvas.style.width = window.innerWidth + "px";
@@ -55,7 +54,6 @@ class DummyGame{
     }
 
     onKeyUp(e) {
-        console.log(e.keyCode);
 
         if(e.keyCode == 37){
             connection.send("PLAYERCOMMAND: LEFT_UP");
@@ -92,7 +90,7 @@ class DummyPlayer{
 	}
 
     draw(){
-        context.fillRect(this.xPos ,100 , 100, 100);
+        context.fillRect(this.xPos ,this.yPos , 100, 100);
     }
 
 }
@@ -100,16 +98,21 @@ class DummyPlayer{
 var dp = new DummyPlayer();
 
 
-var connection = new WebSocket('ws://127.0.0.1:5555');
+var connection = new WebSocket('ws://192.168.0.24:5555');
 window.addEventListener('keydown', dg.onKeyDown, false);
 window.addEventListener('keyup', dg.onKeyUp, false);
 
 connection.onmessage = function (event) {
-    console.log(event.data);
+	var msg = event.data;
+	var cmds = msg.split(",");
+	
+	dp.xPos = parseInt(cmds[0]);
+	dp.yPos = parseInt(cmds[1]);
 }
 
 
 var loop = function(){
+	context.clearRect(0, 0, canvas.width, canvas.height);
 	dp.draw()
 	
 }
