@@ -92,41 +92,50 @@ class DummyPlayer{
 
     draw(){
         context.fillRect(this.xPos ,this.yPos , 100, 100);
+		console.log(this.xPos)
     }
 
 }
 
-var dp = new DummyPlayer();
+var playerArray = []
+
+
 
 
 var connection = new WebSocket('ws://192.168.0.24:5555');
 window.addEventListener('keydown', dg.onKeyDown, false);
 window.addEventListener('keyup', dg.onKeyUp, false);
 
-var onPlayerJoin = function (ID){
-	
-	
-}
-
-var onPlayerLeave = function (ID){
-	
-	
-}
 
 
 connection.onmessage = function (event) {
 	var msg = event.data;
+	var gameState = JSON.parse(msg);
+	//console.log(gameState)
+	var gameStateSize = Object.keys(gameState).length
 	
-	gameState = JSON.parse(msg);
+	if(playerArray.length < gameStateSize){
+		playerArray.push(new DummyPlayer());
+	} else if(playerArray.length > gameStateSize){
+		playerArray.pop();	
+	}
 	
-	console.log(gameState)
-	
+	for(var i = 0; i < playerArray.length; i++){
+		playerArray[i].xPos = gameState["Player " + (i+1)]["xPos"];
+		playerArray[i].yPos = gameState["Player " + (i+1)]["yPos"];
+	}
+
+
 }
 
 
 var loop = function(){
 	context.clearRect(0, 0, canvas.width, canvas.height);
-	dp.draw()
+	
+	for(var i = 0; i < playerArray.length; i++){
+		playerArray[i].draw()
+	}
+	
 }
 
 
