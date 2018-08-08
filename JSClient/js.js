@@ -27,7 +27,7 @@ var resize = function(){
 
 
 
-class DummyGame{
+class Game{
 	
 	constructor(){
 
@@ -79,60 +79,97 @@ class DummyGame{
 
 }
 
-var dg = new DummyGame();
-setInterval (dg.stillAliveLoop, 200)
+var gameInstance = new Game();
+setInterval (gameInstance.stillAliveLoop, 200)
 
-class DummyPlayer{
+class Player{
 	
 	constructor(ID){
 		this.ID = ID;
 		this.xPos = (window.innerWidth/2);
 		this.yPos = (window.innerHeight/2);
+		this.ID = undefined;
+		this.color = "#000000";
 	}
 
     draw(){
+		context.fillStyle = this.color;
         context.fillRect(this.xPos ,this.yPos , 100, 100);
-		console.log(this.xPos)
     }
 
 }
 
 var playerArray = []
-
+var yourID = undefined;
+var joining = true;
 
 
 
 var connection = new WebSocket('ws://192.168.0.24:5555');
-window.addEventListener('keydown', dg.onKeyDown, false);
-window.addEventListener('keyup', dg.onKeyUp, false);
+window.addEventListener('keydown', gameInstance.onKeyDown, false);
+window.addEventListener('keyup', gameInstance.onKeyUp, false);
 
-
+var gameState
 
 connection.onmessage = function (event) {
 	var msg = event.data;
-	var gameState = JSON.parse(msg);
-	//console.log(gameState)
+	gameState = JSON.parse(msg);
 	var gameStateSize = Object.keys(gameState).length
+		
 	
 	if(playerArray.length < gameStateSize){
-		playerArray.push(new DummyPlayer());
-	} else if(playerArray.length > gameStateSize){
-		playerArray.pop();	
+		
+		difference = gameStateSize - playerArray.length
+		
+		for(var i = 0; i < difference; i++){
+			playerArray.push(new Player());
+		}
+			
+		
+		if(joining){
+			console.log("playerArray.length: " + playerArray.length + "gameState an diesem Index: " + gameState["Player " + (playerArray.length)]["ID"]);
+			joining = false;
+			playerArray[playerArray.length-1].ID = gameState["Player " + (playerArray.length)]["ID"];
+			yourID = gameState["Player " + (playerArray.length)]["ID"];
+			}
+	
 	}
+	
+	else if(playerArray.length > gameStateSize){
+		
+		connectedIDs = [];
+		
+		for(var i = 0; i < gameStateSize; i++){
+			connectedIDs.push(gameState["Player " + (i+1)]["ID"])
+		}
+		
+		
+		for(var j = 0; j < playerArray.length; j++){
+			if( !(connectedIDs.includes(playerArray[j].ID)) ){
+				playerArray.splice(j, 1);
+				console.log("Im playerArray sind folgende IDs, die nicht mehr im gameState sind: " + playerArray[j].ID)
+			}
+		}
+	}
+
 	
 	for(var i = 0; i < playerArray.length; i++){
 		playerArray[i].xPos = gameState["Player " + (i+1)]["xPos"];
 		playerArray[i].yPos = gameState["Player " + (i+1)]["yPos"];
 	}
 
-
 }
-
 
 var loop = function(){
 	context.clearRect(0, 0, canvas.width, canvas.height);
 	
 	for(var i = 0; i < playerArray.length; i++){
+		if(playerArray[i].ID == yourID){
+			playerArray[i].color = "#FF0000";
+		} else {
+			playerArray[i].color = "#000000";
+		}
+		
 		playerArray[i].draw()
 	}
 	
