@@ -83,8 +83,9 @@ var dg = new DummyGame();
 setInterval (dg.stillAliveLoop, 200)
 
 class DummyPlayer{
-
-    constructor(){
+	
+	constructor(ID){
+		this.ID = ID;
 		this.xPos = (window.innerWidth/2);
 		this.yPos = (window.innerHeight/2);
 	}
@@ -102,21 +103,31 @@ var connection = new WebSocket('ws://192.168.0.24:5555');
 window.addEventListener('keydown', dg.onKeyDown, false);
 window.addEventListener('keyup', dg.onKeyUp, false);
 
+var onPlayerJoin = function (ID){
+	
+	
+}
+
+var onPlayerLeave = function (ID){
+	
+	
+}
+
+
 connection.onmessage = function (event) {
 	var msg = event.data;
-	var cmds = msg.split(",");
 	
-	dp.xPos = parseInt(cmds[0]);
-	dp.yPos = parseInt(cmds[1]);
+	gameState = JSON.parse(msg);
+	
+	console.log(gameState)
+	
 }
 
 
 var loop = function(){
 	context.clearRect(0, 0, canvas.width, canvas.height);
 	dp.draw()
-	
 }
 
 
 setInterval(loop, 20)
-

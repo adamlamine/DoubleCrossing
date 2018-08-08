@@ -1,11 +1,13 @@
+import random
 import threading
 import socket
 import time
+import traceback
+import ws4py.framing
 from enum import Enum
 import uuid
 from base64 import b64encode
 from hashlib import sha1
-
 
 
 class ThreadedServer(threading.Thread):
@@ -73,8 +75,8 @@ class ThreadedServer(threading.Thread):
         for i in self.clientList:
             try:
                 i.sendMsg(msg.encode('utf-8'))
-            except:
-                pass
+            except Exception as e:
+                traceback.print_exc()
 
 
 
@@ -116,15 +118,9 @@ class ThreadedClient(threading.Thread):
 
         return payload
 
-    def sendMsg(self, payload):
-        # setting fin to 1 and opcpde to 0x1
-        frame = [129]
-        # adding len. no masking hence not doing +128
-        frame += [len(payload)]
-        # adding payload
-        frame_to_send = bytearray(frame) + payload
-
-        self.connection.send(frame_to_send)
+    def sendMsg(self, msg):
+        f = ws4py.framing.Frame(opcode=0x1, body=msg, masking_key=None, fin=1, rsv1=0, rsv2=0, rsv3=0)
+        self.connection.sendall( f.build() )
 
     def inputLoop(self, client):
         while self.alive:
@@ -198,7 +194,6 @@ class ThreadedClient(threading.Thread):
         self.timeToLive = 3
 
 
-
 class KEYPRESS(Enum):
     type = "KEYPRESS"
 
@@ -241,25 +236,47 @@ class NetModule():
     def onKeyPress(self, PLAYERCOMMAND):
         print(PLAYERCOMMAND.ID + " hat eine Taste gedrückt: " + str(PLAYERCOMMAND.KEYEVENT))
         #
-        if PLAYERCOMMAND.KEYEVENT == KEYPRESS.SPACE:
-            player.jumping = True
+        for player in playerList:
+            if PLAYERCOMMAND.ID == player.ID:
+                if PLAYERCOMMAND.KEYEVENT == KEYPRESS.SPACE:
+                    player.jumping = True
 
+                if PLAYERCOMMAND.KEYEVENT == KEYPRESS.RIGHT:
+                    player.right = True
+
+                if PLAYERCOMMAND.KEYEVENT == KEYPRESS.LEFT:
+                    player.left = True
         #
         pass
 
     def onKeyRelease(self, PLAYERCOMMAND):
         print(PLAYERCOMMAND.ID + " hat eine Taste losgelassen: " + str(PLAYERCOMMAND.KEYEVENT))
-        #
+
+        for player in playerList:
+            if PLAYERCOMMAND.ID == player.ID:
+
+                if PLAYERCOMMAND.KEYEVENT == KEYRELEASE.RIGHT:
+                    player.right = False
+
+                if PLAYERCOMMAND.KEYEVENT == KEYRELEASE.LEFT:
+                    player.left = False
         #
         #
         pass
 
     def onPlayerConnect(self, ID):
-        #print(ID + " hat das Spiel betreten")
+        print(ID + " hat das Spiel betreten")
+
+        playerList.append(Player(ID))
+
         pass
 
     def onPlayerDisconnect(self, ID):
         #print(ID + " hat das Spiel verlassen")
+        for player in playerList:
+            if ID == player.ID:
+                playerList.remove(player)
+
         pass
 
 
@@ -276,15 +293,18 @@ from pygame.locals import *
 
 
 class Player(object):
-    def __init__(self, rec_x, rec_y, direction):
-        self.rec_x = rec_x
-        self.rec_y = rec_y
+
+    def __init__(self, ID):
+        self.ID = ID
+        self.recSize = 60
+        self.rec_x = random.randint(0+self.recSize, screenWidth-self.recSize)
+        self.rec_y = 400
         self.black = (0, 0, 0)
         self.blue = (0, 0, 255)
         self.red = (255, 0, 0)
-        self.recSize = 60
         self.backSize = self.recSize * 0.1
-        self.direction = direction
+        self.list_direction = [-1, 1]
+        self.direction = random.choice(self.list_direction)
         self.rect = pygame.draw.rect(screen, self.black, (self.rec_x, self.rec_y, self.recSize, self.recSize))
         # self.weapon = pygame.draw.rect(screen, self.blue, (self.rec_x + self.recSize/2, self.rec_y + self.recSize/2,
         #                                                    10, 10))
@@ -296,68 +316,42 @@ class Player(object):
         self.jumping = False
         self.jump_offset = 0
         self.velocity_index = 0
-        self.key_down = False
 
         self.velocity = list([(i / 2.0) - 7.5 for i in range(0, 31)])
         self.platform = 460
 
+        self.left = False
+        self.right = False
 
     def handle_keys(self):
 
-        for e in pygame.event.get():
-            if e.type == QUIT:
-                pygame.quit()
-                exit()
-            elif e.type == KEYPRESS:
-                key = e.key
-                if key == K_LEFT:
-                    self.direction = -1
-                elif key == K_RIGHT:
-                    self.direction = 1
 
-        pressed = pygame.key.get_pressed()
-        if pressed[pygame.K_LEFT]:
+        if self.left:
+            self.direction = -1
             self.run(-1, 0)
-        elif pressed[pygame.K_RIGHT]:
+
+        if self.right:
+            self.direction = 1
             self.run(1, 0)
 
-        elif pressed[K_UP]:
-            self.jumping = True
 
-        elif pressed[K_DOWN]:
-            self.jumping = False
 
     def run(self, direction_x, direction_y):
         self.black = (0, 0, 0)
-        screen.fill(white)
-        screen.fill(green, rect=[0, 400 + player.recSize, screenWidth, 400 - player.recSize])
-        screen.fill(black, rect=[0, 0, screenWidth, 100])
         # self.rect = self.rect.move(x * self.speed, y * self.speed)
         self.rect.move_ip(self.speed * direction_x, self.speed * direction_y)
-        pygame.draw.rect(screen, self.black, self.rect)
 
         if self.direction == 1:
-            self.back_r.move_ip(self.speed * direction_x, self.speed * direction_y)
-            pygame.draw.rect(screen, self.red, self.back_r)
-        else:
-            self.back_l.move_ip(self.speed * direction_x, self.speed * direction_y)
-            pygame.draw.rect(screen, self.red, self.back_l)
+            self.back_r.left = self.rect.left
+            self.back_r.top = self.rect.top
+        elif self.direction == -1:
+            self.back_l.left = self.rect.left + (self.recSize * 0.9)
+            self.back_l.top = self.rect.top
 
         if self.rect.left > screenWidth + self.recSize:
             self.rect.left = -self.recSize
         if self.rect.left < -self.recSize:
             self.rect.left = screenWidth + self.recSize
-
-        if self.direction == 1:
-            if self.back_r.left > screenWidth + self.recSize:
-                self.back_r.left = -self.recSize
-            if self.back_r.left < -self.recSize:
-                self.back_r.left = screenWidth + self.recSize
-        else:
-            if self.back_l.left > screenWidth + self.recSize:
-                self.back_l.left = -self.recSize
-            if self.back_l.left < -self.recSize:
-                self.back_l.left = screenWidth + self.recSize
 
     def draw(self, surface):
         pygame.draw.rect(screen, self.black, self.rect)
@@ -373,10 +367,7 @@ class Player(object):
             self.jump_offset = self.velocity[self.velocity_index] * -4
             self.velocity_index += 1
 
-            if self.rect.top == self.jump_height:
-                self.jumping = False
-
-            elif self.velocity_index >= len(self.velocity) - 1:
+            if self.velocity_index >= len(self.velocity) - 1:
                 self.velocity_index = len(self.velocity) - 1
 
             if self.jump_offset != 0 and self.rect.bottom > self.platform:
@@ -390,30 +381,13 @@ class Player(object):
                 else:
                     self.back_l.bottom = self.platform
 
-        # if self.jumping:
-        #     self.jump_offset = 5
-        #     if self.rect.top == self.jump_height:
-        #         self.jumping = False
-        #
-        # elif self.jump_offset > 0 and self.jumping is False:
-        #     self.jump_offset = -5
-        #
-        # elif self.jump_offset != 0 and self.rect.bottom == self.platform:
-        #     self.jump_offset = 0
-
         self.black = (0, 0, 0)
-        screen.fill(white)
-        screen.fill(green, rect=[0, 400 + self.recSize, screenWidth, 400 - self.recSize])
-        screen.fill(black, rect=[0, 0, screenWidth, 150])
         self.rect.move_ip(direction_x * self.speed, direction_y * self.jump_offset)
-        pygame.draw.rect(screen, self.black, self.rect)
 
         if self.direction == 1:
-            self.back_r.move_ip(direction_x * self.speed, direction_y * self.jump_offset)
-            pygame.draw.rect(screen, self.red, self.back_r)
-        else:
-            self.back_l.move_ip(direction_x * self.speed, direction_y * self.jump_offset)
-            pygame.draw.rect(screen, self.red, self.back_l)
+            self.back_r.top = self.rect.top
+        elif self.direction == -1:
+            self.back_l.top = self.rect.top
 
 
 ##############################################################
@@ -425,33 +399,74 @@ screenHeight = 600
 white = (255, 255, 255)
 green = (0, 255, 0)
 black = (0, 0, 0)
-fps = 60
+fps = 64
 
 screen = pygame.display.set_mode((screenWidth, screenHeight))
 pygame.display.set_caption("Double Crossing")
 
 pygame.init()
 
-player = Player(10, 400, 1)
+playerList = []
+
+
 clock = pygame.time.Clock()
-screen.fill(white)
-screen.fill(green, rect=[0, 400 + player.recSize, screenWidth, 400 - player.recSize])
-screen.fill(black, rect=[0, 0, screenWidth, 150])
-player.draw(screen)
+
 pygame.display.update()
+
 
 def gameLoop():
     while True:
-        netModule.sendGamestate( str(player.rect.left) + "," + str(player.rect.top) )
-        player.handle_keys()
-        player.jump(0, -1)
+
+        screen.fill(white)
+        screen.fill(green, rect=[0, 400 + 60, screenWidth, 400 - 60])
+        screen.fill(black, rect=[0, 0, screenWidth, 150])
+
+        for player in playerList:
+
+            player.draw(screen)
+
+            netModule.sendGamestate(getGameState())
+
+            player.handle_keys()
+
+            if player.jumping is True:
+                player.jump(0, -1)
+
+
         pygame.display.update()
         clock.tick(fps)
-
 
         for e in pygame.event.get():
             if e.type == QUIT:
                 pygame.quit()
-                exit()
+                exit(0)
+                break
+
+def getGameState():
+
+    output = """
+             {
+             """
+
+    for player in playerList:
+        output += """   "Player""" + " " + str(playerList.index(player)+1) + """": {
+                    "ID": """ + str("\"" + player.ID + "\"") + """,
+                    "xPos": """ + str(player.rect.left) + """,
+                    "yPos": """ + str(player.rect.top) + """,
+                    "direction":  """ + str(player.direction) + """,
+                    "alive":  """ + "true" + """
+                 }"""
+
+        if playerList.index(player) < len(playerList) - 1:
+            output += """,
+              """
+        else:
+            output += """
+            }
+                      """
+
+
+    return output
+
 
 gameLoopThread = threading.Thread(target=gameLoop())
