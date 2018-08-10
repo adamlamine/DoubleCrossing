@@ -1,5 +1,6 @@
 import random
 import threading
+import json
 import socket
 import time
 import traceback
@@ -106,6 +107,7 @@ class ThreadedClient(threading.Thread):
     def decodeFrame(self, frame):
         #############TODO: Verstehen
         #############https://superuser.blog/websocket-server-python/
+        #############DIESE FUNKTION IST COPYPASTA
 
         opcode_and_fin = frame[0]
 
@@ -120,7 +122,10 @@ class ThreadedClient(threading.Thread):
 
     def sendMsg(self, msg):
         f = ws4py.framing.Frame(opcode=0x1, body=msg, masking_key=None, fin=1, rsv1=0, rsv2=0, rsv3=0)
-        self.connection.sendall( f.build() )
+        try:
+            self.connection.sendall( f.build() )
+        except:
+            print(str(self.connection) + " konnte nicht erreicht werden." )
 
     def inputLoop(self, client):
         while self.alive:
@@ -444,27 +449,31 @@ def gameLoop():
 
 def getGameState():
 
-    output = """
-             {
-             """
+    output = "["
 
     for player in playerList:
-        output += """   "Player""" + " " + str(playerList.index(player)+1) + """": {
-                    "ID": """ + str("\"" + player.ID + "\"") + """,
-                    "xPos": """ + str(player.rect.left) + """,
-                    "yPos": """ + str(player.rect.top) + """,
-                    "direction":  """ + str(player.direction) + """,
-                    "alive":  """ + "true" + """
-                 }"""
+        # output += """   "Player""" + " " + str(playerList.index(player)+1) + """": {
+        #             "ID": """ + str("\"" + player.ID + "\"") + """,
+        #             "xPos": """ + str(player.rect.left) + """,
+        #             "yPos": """ + str(player.rect.top) + """,
+        #             "direction":  """ + str(player.direction) + """,
+        #             "alive":  """ + "true" + """
+        #          }"""
+
+        output += "{"
+        output += "\"ID\":" + str("\"" + player.ID + "\"") + ","
+        output += "\"xPos\":" + str(player.rect.left) + ","
+        output += "\"yPos\":" + str(player.rect.top) + ","
+        output += "\"direction\":" + str(player.direction)
+        output += "}"
+
 
         if playerList.index(player) < len(playerList) - 1:
-            output += """,
-              """
-        else:
-            output += """
-            }
-                      """
 
+            output += ","
+        else:
+
+            output += "]"
 
     return output
 
