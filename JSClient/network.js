@@ -25,7 +25,9 @@ var resize = function(){
 	canvas.height = window.innerHeight;
 }
 
-
+var onPlayerDeath = function(dyingPlayer){
+	console.log(dyingPlayer.ID + " ist verstorben");
+}
 
 class Game{
 	
@@ -86,26 +88,39 @@ class Player{
 	
 	constructor(ID){
 		this.ID = ID;
+		this.name = "Max Mustermann";
 		this.xPos = (window.innerWidth/2);
 		this.yPos = (window.innerHeight/2);
+		this.width = 60;
+		this.height = 60;
 		this.ID = undefined;
+		this.direction = 1;
 		this.color = "#000000";
 	}
 
     draw(){
 		context.fillStyle = this.color;
-        context.fillRect(this.xPos ,this.yPos , 100, 100);
+        context.fillRect(this.xPos ,this.yPos , this.width, this.height);
+		context.fillStyle = "#FFFFFF";
+		
+		if(this.direction === 1){
+			context.fillRect(this.xPos + this.width*0.8 ,this.yPos + 20 , 10, 10);
+		} else{
+			context.fillRect(this.xPos + this.width*0.1 ,this.yPos + 20, 10, 10);
+		}
+		
     }
 
 }
 
-var playerArray = []
+var playerArray = [];
+var previousPlayerArray = [];
 var yourID = undefined;
 var joining = true;
 
 
 
-var connection = new WebSocket('ws://192.168.0.24:5555');
+var connection = new WebSocket('ws://127.0.0.1:5555');
 window.addEventListener('keydown', gameInstance.onKeyDown, false);
 window.addEventListener('keyup', gameInstance.onKeyUp, false);
 
@@ -115,69 +130,56 @@ connection.onmessage = function (event) {
 	
 	var msg = event.data;
 	gameState = JSON.parse(msg);
-	var gameStateSize = Object.keys(gameState).length
-		
-	//wenn mehr spieler im gameState sind als im playerArray, füge die Differenz an Spielern hinzu
-	if(playerArray.length < gameStateSize){
-		
-		difference = gameStateSize - playerArray.length
-		
-		for(var i = 0; i < difference; i++){
-			playerArray.push(new Player());
-		}
-			
-		//Wenn DIESER Client das erste Mal diese Funktion ausführt, weise ihm sein ID zu (ID des zuletzt gejointen Client)
-		if(joining){
-			console.log("playerArray.length: " + playerArray.length + "gameState an diesem Index: " + gameState["Player " + (playerArray.length)]["ID"]);
-			joining = false;
-			playerArray[playerArray.length-1].ID = gameState["Player " + (playerArray.length)]["ID"];
-			yourID = gameState["Player " + (playerArray.length)]["ID"];
-			}
 	
-	}
+	previousPlayerArray = playerArray;
 	
-	//wenn mehr spieler im playerArray sind als im gameState, such die IDs die nicht übereinstimmen und entferne den Spieler
-	if(playerArray.length > gameStateSize){
-		
-		connectedIDs = [];
-		
-		for(var i = 0; i < gameStateSize; i++){
-			connectedIDs.push(gameState["Player " + (i+1)]["ID"])
-		}
-		
-		
-		for(var j = 0; j < playerArray.length; j++){
-			if( !(connectedIDs.includes(playerArray[j].ID)) ){
-				playerArray.splice(j, 1);
-				console.log("Im playerArray sind folgende IDs, die nicht mehr im gameState sind: " + playerArray[j].ID)
-			}
-		}
-	}
-
-	//gib den Players ihre Parameter
-	for(var i = 0; i < playerArray.length; i++){
+	//wenn mehr oder weniger spieler im gameState sind als im playerArray, baue das playerArray neu auf
+	if((playerArray.length < gameState.length)||(playerArray.length > gameState.length)){
 				
-		//playerArray[i].xPos = gameState["Player " + (i+1)]["xPos"];
-		//playerArray[i].yPos = gameState["Player " + (i+1)]["yPos"];
+		playerArray = [];
+		
+		for(var i = 0; i < gameState.length; i++){
+			playerArray.push(new Player());
+			playerArray[i].ID = gameState[i].ID;
+		}
+
 	}
-
-}
-
-var loop = function(){
-	context.clearRect(0, 0, canvas.width, canvas.height);
 	
-	//zeichnen des Spielers
-	for(var i = 0; i < playerArray.length; i++){
-		if(playerArray[i].ID == yourID){
-			playerArray[i].color = "#FF0000";
-		} else {
-			playerArray[i].color = "#000000";
+	if(playerArray < previousPlayerArray){
+		
+		//schaut, welche Spieler noch am Leben sind und entfernt sie aus dem previousPlayerArray
+		for(var i = 0; i < previousPlayerArray.length; i++){
+			
+			for(var j = 0; j < playerArray.length; j++){
+				
+				if ( previousPlayerArray[i].ID === playerArray[j].ID ){
+					previousPlayerArray.splice(i, 1);
+				}
+				
+			}
+				
+				
 		}
 		
-		playerArray[i].draw()
+		//die übriggebliebenen sind gestorben -> onPlayerDeath
+		for(var i = 0; i < previousPlayerArray.length; i++){
+			onPlayerDeath(previousPlayerArray[i]);
+		}
+		
 	}
 	
+	//Weise den einzelnen Players ihre Parameter zu
+	for(var j = 0; j < playerArray.length; j++){
+		playerArray[j].xPos = gameState[j].xPos;
+		playerArray[j].yPos = gameState[j].yPos;
+		playerArray[j].direction = gameState[j].direction;
+	}
+			
+	//Wenn DIESER Client das erste Mal diese Funktion ausführt, weise ihm seine ID zu (ID des zuletzt gejointen Client)
+	if(joining){
+		joining = false;
+		yourID = gameState[0].yourID;
+	}
+
+
 }
-
-
-setInterval(loop, 20)
