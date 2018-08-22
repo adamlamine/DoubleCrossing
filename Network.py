@@ -10,7 +10,6 @@ import uuid
 from base64 import b64encode
 from hashlib import sha1
 
-
 class ThreadedServer(threading.Thread):
 
     IP = "127.0.0.1"
@@ -209,8 +208,15 @@ class ThreadedClient(threading.Thread):
             output += "\"xPos\":" + str(player.rect.left) + ","
             output += "\"yPos\":" + str(player.rect.top) + ","
             output += "\"direction\":" + str(player.direction) + ","
+            output += "\"speed\":" + str(player.speed) + ","
+            output += "\"weaponLength\":" + str(player.weapon_length) + ","
+            output += "\"attacking\":" + "\"" + str(player.hit) + "\"" + ","
+            output += "\"kissing\":" + "\"" + str(player.kissing) + "\"" + ","
+            output += "\"jumping\":" + "\"" + str(player.jumping) + "\"" + ","
             output += "\"yourID\":" + "\"" + self.ID + "\""
             output += "}"
+
+
 
             if playerList.index(player) < len(playerList) - 1:
 
@@ -279,8 +285,8 @@ class NetModule():
                     player.left = True
 
                 if PLAYERCOMMAND.KEYEVENT == KEYPRESS.SPACE:
-                    player.hit = True
-        #
+                    if not player.kissing:
+                        player.hit = True
         pass
 
     def onKeyRelease(self, PLAYERCOMMAND):
@@ -291,9 +297,11 @@ class NetModule():
 
                 if PLAYERCOMMAND.KEYEVENT == KEYRELEASE.RIGHT:
                     player.right = False
+                    player.speed = 2
 
                 if PLAYERCOMMAND.KEYEVENT == KEYRELEASE.LEFT:
                     player.left = False
+                    player.speed = 2
 
                 if PLAYERCOMMAND.KEYEVENT == KEYRELEASE.SPACE:
                     player.hit = False
@@ -335,7 +343,7 @@ class Player(object):
     def __init__(self, ID):
         self.ID = ID
         self.name = "Max Mustermann"
-        self.recSize = 60
+        self.recSize = 45
         self.weapon_length = 100
         self.rec_x = random.randint(0+ (self.recSize + self.weapon_length),
                                     screenWidth - (self.recSize + self.weapon_length))
@@ -351,7 +359,9 @@ class Player(object):
                                                              self.recSize / 2, self.weapon_length, 10))
         self.weapon_l = pygame.draw.rect(screen, self.blue, (self.rect.left + self.recSize / 2, self.rect.top +
                                                              self.recSize / 2, -self.weapon_length, 10))
-        self.speed = 10
+        self.speed = 3
+        self.maxspeed = 13
+
         self.jump_speed = 0
         self.jump_height = 150
         self.jumping = False
@@ -359,9 +369,9 @@ class Player(object):
         self.velocity_index = 0
 
         # self.velocity = list([(i / 2.0) - 7.5 for i in range(0, 31)])
-        self.velocity_up = list([i for i in range(-30, 0, 2)])
-        self.velocity_down = list([i for i in range(2, 32, 2)])
-        self.platform = 460
+        self.velocity_up = list([i for i in range(-24, 0)])
+        self.velocity_down = list([i for i in range(2, 24)])
+        self.platform = 445
 
         self.left = False
         self.right = False
@@ -369,11 +379,14 @@ class Player(object):
         self.gravity = 5
         self.on_ground = True
 
+        self.kissing = False
+
     def handle_keys(self):
 
         if self.left:
             self.direction = -1
             self.run(-1, 0)
+
 
         if self.right:
             self.direction = 1
@@ -383,6 +396,9 @@ class Player(object):
         self.black = (0, 0, 0)
 
         self.rect.move_ip(self.speed * direction_x, self.gravity * direction_y)
+
+        if self.speed < self.maxspeed:
+            self.speed += 0.1
 
         if self.direction == 1:
             self.weapon_r.left = self.rect.left + self.recSize / 2
@@ -408,6 +424,7 @@ class Player(object):
             self.weapon_l = pygame.draw.rect(screen, self.blue, (self.rect.left + self.recSize / 2, self.rect.top +
                                                             self.recSize / 2, -self.weapon_length, 10))
             pygame.draw.rect(screen, self.blue, self.weapon_l)
+
 
     def jump(self, direction_x, direction_y):
 
@@ -448,7 +465,7 @@ class Player(object):
 
     def attacked(self):
         self.weapon_length += 10
-        self.speed *= 0.9
+        self.maxspeed *= 0.9
 
 
 ##############################################################
@@ -489,14 +506,22 @@ def collision():
                 and player1.rect.bottom == player2.rect.bottom:
                 #print("colliding")
 
-                if player1.rect.left < player2.rect.left:
-                    player1.rect.right = player2.rect.left
+                while(player1.rect.left < player2.rect.left and player1.rect.left + player1.recSize > player2.rect.left):
+                    player1.rect.left -= 1
+                    player2.rect.left +=1
 
-                if player1.rect.left > player2.rect.left:
-                    player1.rect.left = player2.rect.right
+                # while (player1.rect.left > player2.rect.left):
+                #     player1.rect.left -= 1
+                #     player2.rect.left += 1
 
-                if player1.rect.bottom <= (player2.rect.bottom - player2.recSize):
-                    player1.rect.bottom = (player2.rect.bottom - player2.recSize)
+                # if player1.rect.left < player2.rect.left:
+                #     player1.rect.right = player2.rect.left
+                #
+                # if player1.rect.left > player2.rect.left:
+                #     player1.rect.left = player2.rect.right
+                #
+                # if player1.rect.bottom <= (player2.rect.bottom - player2.recSize):
+                #     player1.rect.bottom = (player2.rect.bottom - player2.recSize)
 
 
             if pygame.sprite.collide_rect(player1, player2) \
@@ -516,12 +541,37 @@ def collision():
 
                 if player1.jumping is False and player2.jumping:
                     player1.jumping = True
+
+def kissing():
+
+    for i in range(0, len(playerList)):
+        for j in range(i+1, len(playerList)):
+
+            player1 = playerList[i]
+            player2 = playerList[j]
+
+            if player1 != player2 and player1.direction != player2.direction and player1.rect.bottom == player2.rect.bottom and abs( player1.rect.left - player2.rect.left ) <= player1.recSize + 5:
+
+               if player1.rect.left < player2.rect.left and player1.direction == 1 and player2.direction == -1:
+                    player1.kissing = True
+                    player2.kissing = True
+
+               if player1.rect.left > player2.rect.left and player1.direction == -1 and player2.direction == 1:
+                   player1.kissing = True
+                   player2.kissing = True
+
+            elif player1 != player2:
+                player1.kissing = False
+                player2.kissing = False
+
+
 def gameLoop():
     while True:
         screen.fill(white)
-        screen.fill(green, rect=[0, 400 + 60, screenWidth, 400 - 60])
+        screen.fill(green, rect=[0, 400 + 45, screenWidth, 400 - 45])
         screen.fill(black, rect=[0, 0, screenWidth, 150])
         collision()
+        kissing()
 
         for connection in serverThread.clientList:
             connection.sendGameState()
