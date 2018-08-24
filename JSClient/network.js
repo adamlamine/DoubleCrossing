@@ -222,7 +222,7 @@ class Player{
 		this.missSoundPlaying = false;
 		this.deathSoundPlaying = false;
 		this.stepSoundPlaying = false;
-		
+		this.self = this;
 	}
 	
 	draw(){
@@ -258,6 +258,10 @@ class Player{
 			} else {
 				this.frame = 0;
 				this.partialFrame = 0;
+				
+				if(!this.jumping){
+					stepSounds[Math.floor((Math.random() * 9) + 0)].play();
+				}
 			}
 		} 
 		
@@ -339,7 +343,9 @@ class Player{
 		if(this.kissing && !this.kissAnimationPlaying){
 			
 			if(kissSound.paused){
+				
 				kissSound.play();
+			
 			}
 				
 
@@ -362,8 +368,14 @@ class Player{
 	}
 	
 	jump(){
+		
+		
 		if (this.jumping === true && !this.jumpSoundPlaying){
 			jumpSounds[Math.floor((Math.random() * 3) + 0)].play();
+			this.jumpSoundPlaying = true;
+			
+			self = this.self;
+			setTimeout( function(){self.jumpSoundPlaying = false}, 500);
 		}
 	}
 	
@@ -378,6 +390,8 @@ class Player{
 
 }
 
+
+
 var playerArray = [];
 var previousPlayerArray = [];
 var yourID = undefined;
@@ -385,7 +399,7 @@ var joining = true;
 
 
 
-var connection = new WebSocket('ws://127.0.0.1:5555');
+var connection = new WebSocket('ws://192.168.0.24:5555');
 window.addEventListener('keydown', gameInstance.onKeyDown, false);
 window.addEventListener('keyup', gameInstance.onKeyUp, false);
 
@@ -435,7 +449,6 @@ connection.onmessage = function (event) {
 	
 	//Weise den einzelnen Players ihre Parameter zu
 	for(var j = 0; j < playerArray.length; j++){
-		//playerArray[j].xPos = gameState[j].xPos;
 		playerArray[j].width = window.innerWidth/20;
 		playerArray[j].height = window.innerWidth/20;
 		

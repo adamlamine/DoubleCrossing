@@ -12,7 +12,7 @@ from hashlib import sha1
 
 class ThreadedServer(threading.Thread):
 
-    IP = "127.0.0.1"
+    IP = "192.168.0.24"
     port = 5555
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
