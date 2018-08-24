@@ -260,7 +260,9 @@ class Player{
 				this.partialFrame = 0;
 				
 				if(!this.jumping){
-					stepSounds[Math.floor((Math.random() * 9) + 0)].play();
+					var randomNr = Math.floor((Math.random() * 9) + 0);
+					stepSounds[randomNr].load();
+					stepSounds[randomNr].play();
 				}
 			}
 		} 
@@ -381,7 +383,13 @@ class Player{
 	
 	miss(){
 		if (this.attacking === true && !this.missSoundPlaying ){
-			missSounds[Math.floor((Math.random() * 7) + 0)].play();
+			var randomNr = Math.floor((Math.random() * 7) + 0);
+			missSounds[randomNr].load();
+			missSounds[randomNr].play();
+			this.missSoundPlaying = true;
+			
+			self = this.self;
+			setTimeout( function(){self.missSoundPlaying = false}, 280);
 		}
 	}
 		
