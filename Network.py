@@ -490,17 +490,28 @@ clock = pygame.time.Clock()
 
 pygame.display.update()
 
+def hitdetection():
+    for attackingPlayer in playerList:
+        for attackedPlayer in playerList:
+
+            if attackingPlayer.hit is True:
+                if attackingPlayer.direction == attackedPlayer.direction:
+                    if attackingPlayer.rect.left * attackingPlayer.direction < attackedPlayer.rect.left * attackedPlayer.direction:
+                         if abs(attackingPlayer.rect.left - attackedPlayer.rect.left) < attackingPlayer.weapon_length:
+                             playerList.remove(attackedPlayer)
+                             attackingPlayer.attacked()
+
 
 def collision():
     for player1 in playerList:
         for player2 in playerList:
 
-            if player1.hit is True:
-                if (player1.weapon_length + player1.recSize/2) >= abs(player1.rect.left - player2.rect.left) \
-                        and player1 != player2 and player1.rect.bottom == player2.rect.bottom \
-                        and player1.direction == player2.direction:
-                    playerList.remove(player2)
-                    player1.attacked()
+            # if player1.hit is True:
+            #     if (player1.weapon_length + player1.recSize/2) >= abs(player1.rect.left - player2.rect.left) \
+            #             and player1 != player2 and player1.rect.bottom == player2.rect.bottom \
+            #             and player1.direction == player2.direction:
+            #         playerList.remove(player2)
+            #         player1.attacked()
 
             if pygame.sprite.collide_rect(player1, player2) and player1 != player2 \
                 and player1.rect.bottom == player2.rect.bottom:
@@ -571,6 +582,7 @@ def gameLoop():
         screen.fill(green, rect=[0, 400 + 45, screenWidth, 400 - 45])
         screen.fill(black, rect=[0, 0, screenWidth, 150])
         collision()
+        hitdetection()
         kissing()
 
         for connection in serverThread.clientList:
