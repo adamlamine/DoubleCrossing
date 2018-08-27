@@ -1,7 +1,13 @@
 var bgCanvas, bgContext, canvas, context;
 
 var backgroundImg = new Image();
-backgroundImg.src = 'RESOURCES/Graphics/Background/Background.png';
+var floorImg = new Image();
+
+backgroundImg.src = 'RESOURCES/Graphics/Background/BackgroundPlain.png';
+floorImg.src = 'RESOURCES/Graphics/Background/Floor.png';
+
+
+
 var gradient = new Image();
 gradient.src = 'RESOURCES/Graphics/Character/gradient.png';
 
@@ -13,9 +19,11 @@ var heartModel = [];
 var deathModelLeft = [];
 var deathModelRight = [];
 var bloodSplatterModels = [];
+var cloudModels = [];
 
 var playingDeathAnims = [];
 var bloodSplatters = [];
+var clouds = [];
 
 var swordHandle = new Image();
 var swordBlade = new Image();
@@ -51,6 +59,11 @@ for (var k = 0; k < 13; k++){
 for (var j = 0; j < 4; j++){
 	bloodSplatterModels.push(new Image());
 	bloodSplatterModels[j].src = 'RESOURCES/Graphics/Blood/' + j + '.png';
+}
+
+for (var j = 0; j < 4; j++){
+	cloudModels.push(new Image());
+	cloudModels[j].src = 'RESOURCES/Graphics/Background/Clouds/' + j + '.png';
 }
 
 var kissSound = new Audio('RESOURCES/Audio/Character/Kiss/kiss_1.mp3');
@@ -126,7 +139,6 @@ var init = function(){
 	bgCanvas.style.background = "#5f772f";
 	canvas.style.background = "rgba(0,0,0,0)";
 	
-
 }
 
 init();
@@ -143,6 +155,7 @@ var resize = function(){
 	bgCanvas.style.width = window.innerWidth + "px";
 	bgCanvas.width = window.innerWidth;
 	bgCanvas.height = window.innerHeight;
+	
 }
 
 var onPlayerDeath = function(dyingPlayer){
@@ -208,6 +221,28 @@ class BloodSplatter{
 	
 	display(){
 		context.drawImage(bloodSplatterModels[this.randomNr], this.xPos, window.innerWidth/2.4, this.sizeX, this.sizeY);
+	}
+	
+}
+
+class Cloud{
+	
+	constructor(type){
+		this.type = type;
+		this.yPos = window.innerWidth * 0.15 + Math.floor((Math.random() * 100));
+		this.xPos = Math.floor( ( Math.random() * window.innerWidth ) );
+		this.speed = (Math.random() * 0.8) + 0.1;
+	}
+	
+	display(){
+		bgContext.drawImage(cloudModels[this.type], this.xPos, this.yPos, window.innerWidth/3.4, window.innerWidth/3.4);
+		
+		this.xPos-=this.speed;
+		if (this.xPos < 0 - window.innerWidth/3.4){
+			this.xPos = window.innerWidth;
+			this.yPos = window.innerWidth * 0.15 + Math.floor((Math.random() * 100));
+			this.speed = (Math.random() * 0.8) + 0.1;
+		}
 	}
 	
 }

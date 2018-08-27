@@ -12,8 +12,11 @@ from hashlib import sha1
 
 class ThreadedServer(threading.Thread):
 
-    IP = "192.168.0.24"
-    port = 5555
+    IPFile = open("IP.txt", 'r')
+
+
+    IP = IPFile.readline()[:-1]
+    port = int(IPFile.readline())
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((IP, port))
@@ -494,7 +497,7 @@ def hitdetection():
     for attackingPlayer in playerList:
         for attackedPlayer in playerList:
 
-            if attackingPlayer.hit is True:
+            if attackingPlayer.hit is True and abs(attackingPlayer.rect.top - attackedPlayer.rect.top) < 15:
                 if attackingPlayer.direction == attackedPlayer.direction:
                     if attackingPlayer.rect.left * attackingPlayer.direction < attackedPlayer.rect.left * attackedPlayer.direction:
                          if abs(attackingPlayer.rect.left - attackedPlayer.rect.left) < attackingPlayer.weapon_length:

@@ -1,3 +1,7 @@
+for(var i = 0; i < cloudModels.length; i++){
+	clouds.push(new Cloud(i));
+}
+
 var draw = function(){
 	
 	context.clearRect(0,0,window.innerWidth, window.innerHeight);
@@ -27,11 +31,22 @@ var draw = function(){
 		}
 	}
 	
-
 	
 	//DRAW BACKGROUND
 	bgContext.clearRect(0,0,window.innerWidth, window.innerHeight);
     bgContext.drawImage(backgroundImg, 0, 0,  window.innerWidth, window.innerWidth/2);
+	
+	
+	//DRAW CLOUDS
+	for (var i = 0; i < clouds.length; i++){
+		var cloud = clouds[i];
+		cloud.display();
+	}
+
+	//DRAW FLOOR
+	bgContext.drawImage(floorImg, 0,  window.innerWidth*0.405,  window.innerWidth, window.innerWidth/10.38);
+
+
 
 }
 
