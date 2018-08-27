@@ -61,7 +61,7 @@ for (var j = 0; j < 4; j++){
 	bloodSplatterModels[j].src = 'RESOURCES/Graphics/Blood/' + j + '.png';
 }
 
-for (var j = 0; j < 4; j++){
+for (var j = 0; j < 5; j++){
 	cloudModels.push(new Image());
 	cloudModels[j].src = 'RESOURCES/Graphics/Background/Clouds/' + j + '.png';
 }
@@ -241,7 +241,7 @@ class Cloud{
 		if (this.xPos < 0 - window.innerWidth/3.4){
 			this.xPos = window.innerWidth;
 			this.yPos = window.innerWidth * 0.15 + Math.floor((Math.random() * 100));
-			this.speed = (Math.random() * 0.8) + 0.1;
+			this.speed = (Math.random() * 0.3) + 0.1;
 		}
 	}
 	
