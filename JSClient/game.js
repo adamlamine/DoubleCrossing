@@ -1,73 +1,14 @@
-//var checkAudio = function(){
-//	
-//	for(var i = 0; i < playerArray.length; i++){
-//		var player = playerArray[i];
-//		
-//		for (var i = 0; i < deathSounds.length; i++){
-//			if (player.deathSounds[i].paused){
-//				player.deathSoundPlaying = false;
-//			} else{
-//				player.deathSoundPlaying = true;
-//				break;
-//			}
-//		}
-//	
-//		for (var i = 0; i < stepSounds.length; i++){
-//			if (player.stepSounds[i].paused){
-//				player.stepSoundPlaying = false;
-//			} else{
-//				player.stepSoundPlaying = true;
-//				break;
-//			}
-//		}
-//		
-//		for (var i = 0; i < jumpSounds.length; i++){
-//			if (player.jumpSounds[i].paused){
-//				player.jumpSoundPlaying = false;
-//			} else{
-//				player.jumpSoundPlaying = true;
-//				break;
-//			}
-//		}
-//
-//		for (var i = 0; i < attackSounds.length; i++){
-//			if (player.attackSounds[i].paused){
-//				player.attackSoundPlaying = false;
-//			} else{
-//				player.attackSoundPlaying = true;
-//				break;
-//			}
-//		}
-//		
-//		for (var i = 0; i < stepSounds.length; i++){
-//			if (player.hitSounds[i].paused){
-//				player.hitSoundPlaying = false;
-//			} else{
-//				player.hitSoundPlaying = true;
-//				break;
-//			}
-//		}
-//
-//		for (var i = 0; i < missSounds.length; i++){
-//			if (player.missSounds[i].paused){
-//				player.missSoundPlaying = false;
-//			} else{
-//				player.missSoundPlaying = true;
-//				break;
-//			}
-//		}
-//	}
-//	
-//}
-
-
 var draw = function(){
 	
 	context.clearRect(0,0,window.innerWidth, window.innerHeight);
-
+	
+	for (var i = 0; i < bloodSplatters.length; i++){
+		var bloodSplatter = bloodSplatters[i];
+		bloodSplatter.display();
+	}
+	
 	for(var i = 0; i < playerArray.length; i++){
 		var player = playerArray[i];
-		//checkAudio();
 		player.drawSword();
 		player.draw();
 		player.walkAnim();	
@@ -76,6 +17,17 @@ var draw = function(){
 		player.jump();
 		player.miss();
 	}
+	
+	for(var i = 0; i < playingDeathAnims.length; i++){
+		var anim = playingDeathAnims[i];
+		if(anim.playing){
+			anim.play();
+		} else {
+			playingDeathAnims.splice(i, 1);
+		}
+	}
+	
+
 	
 	//DRAW BACKGROUND
 	bgContext.clearRect(0,0,window.innerWidth, window.innerHeight);

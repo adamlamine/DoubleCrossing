@@ -10,11 +10,17 @@ var playerModelRight = [];
 var ownModelLeft = [];
 var ownModelRight = [];
 var heartModel = [];
+var deathModelLeft = [];
+var deathModelRight = [];
+var bloodSplatterModels = [];
+
+var playingDeathAnims = [];
+var bloodSplatters = [];
 
 var swordHandle = new Image();
 var swordBlade = new Image();
-swordHandle.src = 'RESOURCES/Graphics/Character/Sword/handle.png'
-swordBlade.src = 'RESOURCES/Graphics/Character/Sword/blade.png'
+swordHandle.src = 'RESOURCES/Graphics/Character/Sword/handle.png';
+swordBlade.src = 'RESOURCES/Graphics/Character/Sword/blade.png';
 
 
 for (var i = 0; i < 7; i++){
@@ -32,6 +38,19 @@ for (var i = 0; i < 7; i++){
 for (var j = 0; j < 4; j++){
 	heartModel.push(new Image());
 	heartModel[j].src = 'RESOURCES/Graphics/Character/Hearts/' + j + '.png';
+}
+
+for (var k = 0; k < 13; k++){
+	deathModelLeft.push(new Image());
+	deathModelRight.push(new Image());
+	
+	deathModelRight[k].src = 'RESOURCES/Graphics/Character/Death/1/' + k + '.png';
+	deathModelLeft[k].src = 'RESOURCES/Graphics/Character/Death/-1/' + k + '.png';
+}
+
+for (var j = 0; j < 4; j++){
+	bloodSplatterModels.push(new Image());
+	bloodSplatterModels[j].src = 'RESOURCES/Graphics/Blood/' + j + '.png';
 }
 
 var kissSound = new Audio('RESOURCES/Audio/Character/Kiss/kiss_1.mp3');
@@ -131,6 +150,65 @@ var onPlayerDeath = function(dyingPlayer){
 	
 	hitSounds[Math.floor((Math.random() * 2) + 0)].play();
 	deathSounds[Math.floor((Math.random() * 2) + 0)].play();
+	
+	playingDeathAnims.push( new DeathAnim(dyingPlayer.xPos, dyingPlayer.yPos, dyingPlayer.direction) );
+	bloodSplatters.push( new BloodSplatter(dyingPlayer.xPos) );
+}
+
+class DeathAnim{
+	
+	constructor(xPos, yPos, direction){
+		this.xPos = xPos;
+		this.yPos = yPos;
+		this.direction = direction;
+		this.partialFrame = 0;
+		this.frame = 0;
+		this.playing = true;
+	}
+	
+	play(){
+		
+		var sizeX = 282;
+		var sizeY = 170;		
+		
+		this.partialFrame++
+		
+		if(this.partialFrame >= 2){
+			this.frame++;
+			this.partialFrame = 0;
+		}
+				
+		
+		if (this.frame >= 12){
+			this.playing = false;
+		}
+		
+		if(this.direction === 1){
+			this.img = deathModelRight;
+			context.drawImage(this.img[this.frame], this.xPos - sizeX/2, this.yPos - sizeY/4, sizeX, sizeY);
+		} else {
+			this.img = deathModelLeft;
+			context.drawImage(this.img[this.frame], this.xPos - sizeX/10, this.yPos - sizeY/4, sizeX, sizeY);
+		}
+		
+		
+		
+		
+	}	
+}
+
+class BloodSplatter{
+	
+	constructor(xPos){
+		this.xPos = xPos;
+		this.randomNr = Math.floor((Math.random() * 3));
+		this.sizeX = window.innerWidth/15;
+		this.sizeY = this.sizeX/1.65;
+	}
+	
+	display(){
+		context.drawImage(bloodSplatterModels[this.randomNr], this.xPos, window.innerWidth/2.4, this.sizeX, this.sizeY);
+	}
 	
 }
 
