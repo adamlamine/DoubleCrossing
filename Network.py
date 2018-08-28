@@ -1,6 +1,7 @@
 import random
 import threading
-import json
+import sys
+import os
 import socket
 import time
 import traceback
@@ -9,6 +10,8 @@ from enum import Enum
 import uuid
 from base64 import b64encode
 from hashlib import sha1
+
+
 
 class ThreadedServer(threading.Thread):
 
@@ -32,6 +35,7 @@ class ThreadedServer(threading.Thread):
 
     def __init__(self):
         threading.Thread.__init__(self)
+        self.serverOn = True
 
     def run(self):
         self.serverLoop()
@@ -41,7 +45,7 @@ class ThreadedServer(threading.Thread):
 
     def serverLoop(self):
 
-        while True:
+        while serverThread.serverOn:
             connection, address = self.s.accept()
             self.handshake(connection)
 
@@ -580,7 +584,8 @@ def kissing():
 
 
 def gameLoop():
-    while True:
+
+    while serverThread.serverOn:
         screen.fill(white)
         screen.fill(green, rect=[0, 400 + 45, screenWidth, 400 - 45])
         screen.fill(black, rect=[0, 0, screenWidth, 150])
@@ -611,8 +616,16 @@ def gameLoop():
 
         for e in pygame.event.get():
             if e.type == QUIT:
+                serverThread.serverOn = False
+
+                for client in serverThread.clientList:
+                    client.alive = False
+
                 pygame.quit()
+                sys.exit(0)
+                os._exit(0)
                 exit(0)
+
                 break
 
     gameLoopThread = threading.Thread(target=gameLoop())

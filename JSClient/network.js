@@ -502,7 +502,7 @@ class Player{
 			this.missSoundPlaying = true;
 			
 			self = this.self;
-			setTimeout( function(){self.missSoundPlaying = false}, 280);
+			setTimeout( function(){ self.missSoundPlaying = false; }, 280 );
 		}
 	}
 		
